@@ -1,7 +1,3 @@
-Here's a comprehensive `README.md` for your APM SDK project:
-
----
-
 # Telex APM SDK
 
 The **Telex APM SDK** is an Application Performance Monitoring (APM) middleware built in Go, designed to collect and send application metrics and error logs to a specified webhook URL. The SDK is built to be integrated into various Go web applications, specifically supporting the Gin web framework.
@@ -55,27 +51,45 @@ You can now integrate the Telex APM middleware with your Gin application by usin
 package main
 
 import (
-    "github.com/Micah-Shallom/go-apm-sdk/telexgin"
-    "github.com/gin-gonic/gin"
+	"log"
+
+	"github.com/Micah-Shallom/go-apm-sdk/telex"
+	"github.com/Micah-Shallom/go-apm-sdk/telexgin"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-    router := gin.Default()
-    handler := &telexgin.Handler{
-        Options: telexgin.Options{
-            // Your handler options
-        },
-    }
+	//Initialize the APM
+	apmClient, err := telex.Init(telex.APMOptions{
+		WebhookURL:        "https://XXXX-XXXXXXX-XXXXXXXXXXXx", //telex webhook
+		Async:             false,
+		EnableTracing:     true,
+		TracingSampleRate: 1.0,
+	})
 
-    // Apply middleware to track request and error metrics
-    router.Use(handler.handlegin)
+	if err != nil {
+		log.Fatalf("Failed to initialize APM: %v", err)
+	}
 
-    router.GET("/ping", func(c *gin.Context) {
-        c.String(200, "pong")
-    })
+	router := gin.Default()
+	router.Use(telexgin.NewGin(apmClient, telexgin.Options{
+		Repanic:         false, // Set to true only in development and debugging environments
+		WaitForDelivery: true,
+		Timeout:         5,
+	}))
 
-    router.Run()
+	router.GET("/", func(ctx *gin.Context) {
+		ctx.JSON(200, gin.H{"message": "Hello, World!"})
+	})
+
+	router.GET("/panic", func(ctx *gin.Context) {
+		panic("Something went wrong")
+	})
+
+	router.Run(":8081")
+
 }
+
 ```
 
 ### Step 3: Sending Metrics
