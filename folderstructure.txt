@@ -1,0 +1,20 @@
+telex-apm/
+
+├── apm/                # Core APM logic (Initialization, configuration, error reporting, etc.)
+│   ├── apm.go          # APM initialization and client management
+│   ├── error.go        # Error reporting logic (sending metrics to the webhook)
+│   ├── tracing.go      # (Optional) Tracing functionality
+│   └── types.go        # Define shared types and constants
+
+├── gin/                # Gin framework integration
+│   └── gin.go          # Gin middleware for APM
+
+├── examples/           # Example client application to demonstrate usage
+│   └── gin-app/        # Gin-based app example
+│       ├── main.go     # Example Gin app using Telex APM middleware
+
+├── go.mod              # Go module definition (specifies the module name and dependencies)
+
+├── README.md           # Project description and usage instructions
+
+└── LICENSE            
